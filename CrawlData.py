@@ -40,7 +40,7 @@ wokingProcess = {
     'Cơ quan công tác': [],
     'Chức vụ': [],
     'Id': []
-}  
+}
 
 listWorkingProcess = ['Thời gian',
                       'Chức danh công tác', 'Cơ quan công tác', 'Chức vụ']
