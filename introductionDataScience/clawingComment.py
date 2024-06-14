@@ -5,8 +5,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import traceback
+from config import EMAIL, PASSWORD
 
-def clawingComment(url, email, password):
+def clawingComment(url):
     chrome_options = Options()
     chrome_options.add_argument("--incognito")
     chrome_options.add_argument("--window-size=1920x1080")
@@ -24,7 +25,6 @@ def clawingComment(url, email, password):
         commentValue = []
         listComments = commentElement.find_elements(By.CLASS_NAME, 'content-comment')
 
-
         # Tiếp tục tải thêm bình luận
         while len(listComments) < commentNumber:
             try:
@@ -32,27 +32,36 @@ def clawingComment(url, email, password):
                     EC.presence_of_element_located((By.ID, 'show_more_coment'))
                 )
                 showElement.click()
-                time.sleep(2) 
+                time.sleep(2)
                 try:
-                    # ! Chuyển sang iframe 
-                    iframe = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="dark_theme"]/div[2]/div/div[1]/div/iframe')))
+                    # Chuyển sang iframe 
+                    iframe = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.XPATH, '//*[@id="dark_theme"]/div[2]/div/div[1]/div/iframe')))
                     driver.switch_to.frame(iframe)
-                    login_popup = driver.find_element(By.ID, 'popup-login-sys')
-                    email_input = driver.find_element(By.ID, 'myvne_email_input')
+
+                    # Nhập thông tin đăng nhập
+                    email_input = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.ID, 'myvne_email_input')))
                     password_input = driver.find_element(By.ID, 'myvne_password_input')
-                    email_input.send_keys(email)
-                    password_input.send_keys(password)
-                    buttonLogin = driver.find_element(By.ID,'myvne_button_login')
+                    email_input.send_keys(EMAIL)
+                    password_input.send_keys(PASSWORD)
+                    buttonLogin = driver.find_element(By.ID, 'myvne_button_login')
                     buttonLogin.click()
-                    time.sleep(5)  # Đợi để đăng nhập hoàn tất
-                    WebDriverWait(driver, 10).until(EC.staleness_of(login_popup))
+
+                    # Đợi trang đăng nhập hoàn tất và tải lại
+                    time.sleep(5)
+                    driver.switch_to.default_content()
+                    WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.ID, 'box_comment'))
+                    )
+
                     print('Đăng nhập thành công')
+
+                    listComments = driver.find_elements(By.CLASS_NAME, 'content-comment')
+                    print(len(listComments))
+                except Exception as e:
+                    print('login error', e)
                     driver.switch_to.default_content()
-                except Exception as e:      
-                    print('login error ',e)
-                    driver.switch_to.default_content()
-                listComments = driver.find_elements(By.CLASS_NAME, 'content-comment')
-                print(len(listComments))
             except Exception as e:
                 print("An error occurred while loading more comments:", e)
                 break
@@ -76,7 +85,7 @@ def clawingComment(url, email, password):
                     commentValue.append(people)
                 except Exception as inner_e:
                     print(f"No content found for a comment: {inner_e}")
-        
+
         print(commentValue)
 
     except Exception as e:
@@ -86,7 +95,6 @@ def clawingComment(url, email, password):
         driver.quit()
 
 if __name__ == "__main__":
+    # ! Vẫn đang bị lỗi ở đăng nhập vì trang web xác định được bot từ selenium và ngăn chặn không cho đăng nhập 
     url = 'https://vnexpress.net/dua-tre-khong-duoc-an-dui-ga-4751249.html'
-    email = 'minhphu01200@gmail.com'
-    password = 'minhphu102003@'
-    clawingComment(url, email, password)
+    clawingComment(url)
