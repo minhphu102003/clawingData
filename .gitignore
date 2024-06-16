@@ -2,6 +2,10 @@ dataSet
 dataSet/*.csv
 mydtu/*.csv
 mydtu/*.xlsx
+mydtu/config.py
 introductionDataScience/config.py
 introductionDataScience/*.xlsx
 introductionDataScience/*.csv
+*.json
+*.csv
+
