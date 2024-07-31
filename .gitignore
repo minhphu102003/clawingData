@@ -9,3 +9,6 @@ introductionDataScience/*.csv
 *.json
 *.csv
 
+captcha/data
+captcha/myenv/env
+*.xlsx
