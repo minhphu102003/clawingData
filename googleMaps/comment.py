@@ -12,9 +12,9 @@ def getListComment(url):
     chrome_option = Options()
     chrome_option.add_argument("--incognito")
     chrome_option.add_argument("--window-size=1920x1080")
-    chrome_option.add_argument("--headless")
-    chrome_option.add_argument("--no-sandbox")
-    chrome_option.add_argument("--disable-dev-shm-usage")
+    # chrome_option.add_argument("--headless")
+    # chrome_option.add_argument("--no-sandbox")
+    # chrome_option.add_argument("--disable-dev-shm-usage")
 
     driver =webdriver.Chrome(options=chrome_option)
     driver.get(url)
@@ -36,19 +36,41 @@ def getListComment(url):
         while True:
             scroll_down()
             current_divs = parentElment.find_elements(By.XPATH, './div')
-            current_div_count  = len(current_divs)/4
+            current_div_count  = len(current_divs)
             if current_div_count == number_comment:
                 break
             previous_div_count == current_div_count
+            print(current_div_count)
+            print(number_comment)
             for div in current_divs[len(comments):]:
                 try:
                     comment = {}
-                    comment['username']
-                    comment['star']
-                    comment['content']
-                    comment['listImg']
-                    listImg = []
-                    comment[time]
+                    userNameElement = div.find_element(By.XPATH,'./div/div/div[1]/div[1]/div[0]/button/div[0]')
+                    comment['username'] = userNameElement.get_attribute('innerText')
+                    containerContent = div.find_element(By.XPATH,'./div/div/div[3]')
+                    startElement = containerContent.find_element(By.XPATH,'./div[0]/span[0]')
+                    timeElement = containerContent.find_element(By.XPATH,'./div[0]/span[1]')
+                    comment['star'] = startElement.get_attribute('aria-label')
+                    comment['time'] = timeElement.get_attribute('innerText')
+                    contentElement = containerContent.find_element(By.XPATH,'./div[1]/div')
+                    spanMoreElement = contentElement.find_element(By.XPATH,'./span[1]/button')
+                    if spanMoreElement :
+                        spanMoreElement.click()
+                        time.sleep(3)
+                        extractConent = contentElement.find_element(By.XPATH,'./span[0]')
+                    else:
+                        extractConent = contentElement.find_element(By.XPATH, './span')
+                    comment['content'] = extractConent.get_attribute('innerText')
+                    containerImgElement = containerContent.find_element(By.XPATH,'./div[2]')
+                    listImgElement = containerImgElement.find_elements(By.XPATH,'./button')
+                    if listImgElement:
+                        listImg = []
+                        for button in listImgElement:
+                            listImg.append(button.get_attribute('style'))
+                    comment['listImg'] = listImg
+                    print(comment)
+                    print("")
+                    comments.append(comment)
                 except Exception as e:
                     print("An error occurred : ",e)
 
