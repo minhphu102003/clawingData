@@ -37,9 +37,8 @@ product_categories = {
     ]
 }
 
-# Tạo dữ liệu giả lập cho bảng khachHang
 def insert_fake_data_khachHang(cursor, conn, n):
-    for _ in range(n):
+    for i in range(n):
         ten = fake.name()
         email = fake.email()
         sdt = fake.phone_number()
@@ -54,12 +53,13 @@ def insert_fake_data_khachHang(cursor, conn, n):
         phanNan = random.choice([True, False])
 
         # Thực thi câu lệnh SQL để chèn dữ liệu vào bảng khachHang
-        cursor.execute("""
-            INSERT INTO khachHang (ten, email, sdt, diachi, namSinh, hocVan, tinhTrangHonNhan, thuNhap, Kidhome, Teenhome, Recency, phanNan)
+        cursor.execute(""" 
+            INSERT INTO khachHang (ten, email, sdt, diachi, namSinh, hocVan, tinhTrangHonNhan, thuNhap, Kidhome, Teenhome, Recency, phanNan) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, ten, email, sdt, diachi, namSinh, hocVan, tinhTrangHonNhan, thuNhap, Kidhome, Teenhome, Recency, phanNan)
     
     conn.commit()  # Lưu thay đổi
+
 
 # Hàm chèn dữ liệu vào bảng danhMucSanPham
 def insert_fake_data_danhMucSanPham(cursor, conn):
@@ -75,7 +75,7 @@ def insert_fake_data_danhMucSanPham(cursor, conn):
 def insert_fake_data_sanPham(cursor, conn):
     for category, products in product_categories.items():
         # Lấy danhMucId của danh mục sản phẩm hiện tại
-        cursor.execute("SELECT id FROM danhMucSanPham WHERE tenDanhMuc = ?", category)
+        cursor.execute("SELECT danhMucId FROM danhMucSanPham WHERE tenDanhMuc = ?", category)
         danhMucId = cursor.fetchone()[0]
         
         for product in products:
@@ -91,7 +91,7 @@ def insert_fake_data_sanPham(cursor, conn):
     
     conn.commit()
 
-def insert_fake_data_mucTieuChienDich(cursor, conn, n):
+def insert_fake_data_mucTieuChienDich(cursor, conn):
     mucTieuChienDich = [
         'Tăng doanh thu', 
         'Tăng độ nhận diện', 
@@ -101,31 +101,31 @@ def insert_fake_data_mucTieuChienDich(cursor, conn, n):
         'Tăng traffic website'
     ]
 
-    for i in range(n):
-        tenMucTieu = random.choice(mucTieuChienDich)  # Chọn ngẫu nhiên một mục tiêu từ danh sách
+    for i in range(6):
+        tenMucTieu = mucTieuChienDich[i] # Chọn ngẫu nhiên một mục tiêu từ danh sách
         moTa = fake.sentence()
 
         cursor.execute("""
-            INSERT INTO mucTieuChienDich (mucTieuId, tenMucTieu, moTa)
-            VALUES (?, ?, ?)
-        """, i + 1, tenMucTieu, moTa)  # i + 1 để đảm bảo mucTieuId bắt đầu từ 1
+            INSERT INTO mucTieuChienDich ( tenMucTieu, moTa)
+            VALUES ( ?, ?)
+        """, tenMucTieu, moTa)  # i + 1 để đảm bảo mucTieuId bắt đầu từ 1
     
     conn.commit()
 
-def insert_fake_data_phanTichThiTruong(cursor, conn, n):
+def insert_fake_data_phanTichThiTruong(cursor, conn):
     phuong_phap_options = [
         "Khảo sát", "Phân tích SWOT", "Phân tích PEST", 
         "Nghiên cứu thị trường", "Phân tích đối thủ"
     ]
     
-    for i in range(1, n + 1):
-        phuongPhap = random.choice(phuong_phap_options)  # Chọn phương pháp ngẫu nhiên
+    for i in range(5):
+        phuongPhap = phuong_phap_options[i]  # Chọn phương pháp ngẫu nhiên
         moTa = fake.sentence()
 
         cursor.execute("""
-            INSERT INTO phanTichThiTruong (phanTichId, phuongPhap, moTa)
-            VALUES (?, ?, ?)
-        """, i, phuongPhap, moTa)
+            INSERT INTO phanTichThiTruong ( phuongPhap, moTa)
+            VALUES ( ?, ?)
+        """, phuongPhap, moTa)
     
     conn.commit()
 
@@ -141,9 +141,9 @@ def insert_fake_data_kenhPhanPhoi(cursor, conn, n):
         capDo = random.randint(1, 5)  # Cấp độ ngẫu nhiên từ 1 đến 5
 
         cursor.execute("""
-            INSERT INTO kenhPhanPhoi (kenhId, tenKenh, loaiKenh, viTri, hieuXuat, moTa, capDo)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, i, tenKenh, loaiKenh, viTri, hieuXuat, moTa, capDo)
+            INSERT INTO kenhPhanPhoi ( tenKenh, loaiKenh, viTri, hieuXuat, moTa, capDo)
+            VALUES ( ?, ?, ?, ?, ?, ?)
+        """, tenKenh, loaiKenh, viTri, hieuXuat, moTa, capDo)
     
     conn.commit()
 
@@ -151,12 +151,16 @@ def insert_fake_data_chienDichMarketing(cursor, conn, n):
     for i in range(1, n + 1):
         tenChienDich = f"Chiến Dịch {i + 1}" 
         nganSach = random.uniform(10000, 100000)
-        batDau = fake.date_this_decade()
-        ketThuc = fake.date_this_decade(after_today=True)
+        
+        # Định dạng ngày thành chuỗi để tránh lỗi
+        batDau = fake.date_this_decade().strftime('%Y-%m-%d')
+        ketThuc = fake.date_this_decade(after_today=True).strftime('%Y-%m-%d')
+        
         mucTieu = random.randint(1, 5)
         kenhPhanPhoiId = random.randint(1, 5)
         phanTichThiTruongId = random.randint(1, 5)
 
+        # Thực thi câu lệnh SQL với các giá trị định dạng đúng
         cursor.execute("""
             INSERT INTO chienDichMarketing (tenChienDich, nganSach, batDau, ketThuc, mucTieu, kenhPhanPhoiId, phanTichThiTruongId)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -164,17 +168,17 @@ def insert_fake_data_chienDichMarketing(cursor, conn, n):
     
     conn.commit()
 
-def insert_fake_data_chienLuocMarketing(cursor, conn, n):
+def insert_fake_data_chienLuocMarketing(cursor, conn):
     tenOptions = ['Marketing mix','Content Marketing','Digital Marketing', 'Marketing phân khúc', ' Marketing cạnh tranh']
-    for i in range(n):
-        tenChienLuoc = random.choice(tenOptions)  # Tên chiến lược với số thứ tự
+    for i in range(5):
+        tenChienLuoc = tenOptions[i]  # Tên chiến lược với số thứ tự
         moTa = fake.sentence()
         chienDichId = random.randint(1, 10)  # Giả định chienDichId đã tồn tại
 
         cursor.execute("""
-            INSERT INTO chienLuocMarketing (chienLuocId, tenChienLuoc, moTa, chienDichId)
-            VALUES (?, ?, ?, ?)
-        """, i + 1, tenChienLuoc, moTa, chienDichId)  # i + 1 để đảm bảo chienLuocId bắt đầu từ 1
+            INSERT INTO chienLuocMarketing ( tenChienLuoc, moTa, chienDichId)
+            VALUES ( ?, ?, ?)
+        """, tenChienLuoc, moTa, chienDichId)  # i + 1 để đảm bảo chienLuocId bắt đầu từ 1
     
     conn.commit()
 
@@ -187,9 +191,9 @@ def insert_fake_data_theoDoiGiaiDoan(cursor, conn, n):
         trangThai = random.choice(['Đang diễn ra', 'Hoàn thành', 'Dừng lại'])
 
         cursor.execute("""
-            INSERT INTO theoDoiGiaiDoan (giaiDoanId, chienDichId, moTa, batDau, ketThuc, trangThai)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, i + 1, chienDichId, moTa, batDau, ketThuc, trangThai)  # i + 1 để đảm bảo giaiDoanId bắt đầu từ 1
+            INSERT INTO theoDoiGiaiDoan ( chienDichId, moTa, batDau, ketThuc, trangThai)
+            VALUES ( ?, ?, ?, ?, ?)
+        """, chienDichId, moTa, batDau, ketThuc, trangThai)  # i + 1 để đảm bảo giaiDoanId bắt đầu từ 1
     
     conn.commit()
 
@@ -199,20 +203,26 @@ def insert_fake_data_quangCao(cursor, conn, n):
         tenQuangCao = f"Quảng Cáo {i + 1}"  # Tên quảng cáo với số thứ tự
         kenhPhanPhoiId = random.randint(1, 5)  # Giả định kenhPhanPhoiId đã tồn tại
         chiPhi = round(random.uniform(1000000, 50000000), 2)
-        hieuXuat = random.uniform(0.1, 1.0)  # Từ 10% đến 100%
+        hieuXuat = round(random.uniform(0.1, 1.0), 2)  # Giới hạn độ chính xác của float
+        
         mucTieu = random.choice(['Tăng doanh thu', 'Tăng nhận diện thương hiệu', 'Tạo khách hàng tiềm năng'])
         doiTuongKhachHang = fake.word().capitalize()  # Giả định một đối tượng khách hàng
-        ngayBatDau = fake.date_this_year()
-        ngayKetThuc = fake.date_this_year(after_today=True)
+        
+        # Định dạng ngày tháng thành chuỗi
+        ngayBatDau = fake.date_this_year().strftime('%Y-%m-%d')
+        ngayKetThuc = fake.date_this_year(after_today=True).strftime('%Y-%m-%d')
+        
         kieuQuangCao = random.choice(['Banner', 'Video', 'Social Media', 'Search Engine'])
         loiKeuGoi = fake.sentence()
 
+        # Thực thi câu lệnh SQL
         cursor.execute("""
-            INSERT INTO quangCao (quangCaoId, tenQuangCao, kenhPhanPhoiId, chiPhi, hieuXuat, mucTieu, doiTuongKhachHang, ngayBatDau, ngayKetThuc, kieuQuangCao, loiKeuGoi)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, i + 1, tenQuangCao, kenhPhanPhoiId, chiPhi, hieuXuat, mucTieu, doiTuongKhachHang, ngayBatDau, ngayKetThuc, kieuQuangCao, loiKeuGoi)  # i + 1 để đảm bảo quangCaoId bắt đầu từ 1
+            INSERT INTO quangCao ( tenQuangCao, kenhPhanPhoiId, chiPhi, hieuXuat, mucTieu, doiTuongKhachHang, ngayBatDau, ngayKetThuc, kieuQuangCao, loiKeuGoi)
+            VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, tenQuangCao, kenhPhanPhoiId, chiPhi, hieuXuat, mucTieu, doiTuongKhachHang, ngayBatDau, ngayKetThuc, kieuQuangCao, loiKeuGoi)
     
     conn.commit()
+
 
 def insert_fake_data_nganSachMarketing(cursor, conn, n):
     for i in range(n):
@@ -226,9 +236,9 @@ def insert_fake_data_nganSachMarketing(cursor, conn, n):
         trangThai = random.choice(['Đang hoạt động', 'Kết thúc', 'Tạm dừng'])
 
         cursor.execute("""
-            INSERT INTO nganSachMarketing (nganSachId, nganSachBanDau, nganSachHienTai, chiPhiDaDung, chienDichId, kenhPhanPhoiId, quangCaoId, capNhatLanCuoi, trangThai)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, i + 1, nganSachBanDau, nganSachHienTai, chiPhiDaDung, chienDichId, kenhPhanPhoiId, quangCaoId, capNhatLanCuoi, trangThai)  # i + 1 để đảm bảo nganSachId bắt đầu từ 1
+            INSERT INTO nganSachMarketing ( nganSachBanDau, nganSachHienTai, chiPhiDaDung, chienDichId, kenhPhanPhoiId, quangCaoId, capNhatLanCuoi, trangThai)
+            VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)
+        """, nganSachBanDau, nganSachHienTai, chiPhiDaDung, chienDichId, kenhPhanPhoiId, quangCaoId, capNhatLanCuoi, trangThai)  # i + 1 để đảm bảo nganSachId bắt đầu từ 1
     
     conn.commit()
 
@@ -244,9 +254,9 @@ def insert_fake_data_baoCao(cursor, conn, n):
         moTa = fake.sentence()
 
         cursor.execute("""
-            INSERT INTO baoCao (baoCaoId, loaiBaoCao, KPI, ROI, thoiGian, chienDichId, moTa)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, i + 1, loaiBaoCao, KPI, ROI, thoiGian, chienDichId, moTa)  # i + 1 để đảm bảo baoCaoId bắt đầu từ 1
+            INSERT INTO baoCao (loaiBaoCao, KPI, ROI, thoiGian, chienDichId, moTa)
+            VALUES ( ?, ?, ?, ?, ?, ?)
+        """,  loaiBaoCao, KPI, ROI, thoiGian, chienDichId, moTa)  # i + 1 để đảm bảo baoCaoId bắt đầu từ 1
     
     conn.commit()
 
@@ -262,9 +272,9 @@ def insert_fake_data_xuHuongThiTruong(cursor, conn, n):
         nguonThamKhao = fake.company()
 
         cursor.execute("""
-            INSERT INTO xuHuongThiTruong (xuHuongId, tenXuHuong, phanTich, duDoan, ngayCapNhat, chienDichId, moTa, nguonThamKhao)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, i + 1, tenXuHuong, phanTich, duDoan, ngayCapNhat, chienDichId, moTa, nguonThamKhao)  # i + 1 để đảm bảo xuHuongId bắt đầu từ 1
+            INSERT INTO xuHuongThiTruong ( tenXuHuong, phanTich, duDoan, ngayCapNhat, chienDichId, moTa, nguonThamKhao)
+            VALUES ( ?, ?, ?, ?, ?, ?, ?)
+        """, tenXuHuong, phanTich, duDoan, ngayCapNhat, chienDichId, moTa, nguonThamKhao)  # i + 1 để đảm bảo xuHuongId bắt đầu từ 1
     
     conn.commit()
 
@@ -280,9 +290,9 @@ def insert_fake_data_phanTichROI_KPI(cursor, conn, n):
         moTa = fake.sentence()
 
         cursor.execute("""
-            INSERT INTO phanTichROI_KPI (phanTichId, loaiPhanTich, KPI, ROI, thoiGian, chienDichId, moTa)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, i + 1, loaiPhanTich, KPI, ROI, thoiGian, chienDichId, moTa)  # i + 1 để đảm bảo phanTichId bắt đầu từ 1
+            INSERT INTO phanTichROI_KPI ( loaiPhanTich, KPI, ROI, thoiGian, chienDichId, moTa)
+            VALUES ( ?, ?, ?, ?, ?, ?)
+        """,loaiPhanTich, KPI, ROI, thoiGian, chienDichId, moTa)  # i + 1 để đảm bảo phanTichId bắt đầu từ 1
     
     conn.commit()
 
@@ -298,9 +308,9 @@ def insert_fake_data_hanhViTieuDung(cursor, conn, n):
         khachHangId = random.randint(1, 10)  # Giả định khachHangId đã tồn tại
 
         cursor.execute("""
-            INSERT INTO hanhViTieuDung (hanhViId, moTa, chiTiet, loaiHanhVi, ngayGhiNhan, chienDichId, sanPhamId, khachHangId)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, i + 1, moTa, chiTiet, loaiHanhVi, ngayGhiNhan, chienDichId, sanPhamId, khachHangId)  # i + 1 để đảm bảo hanhViId bắt đầu từ 1
+            INSERT INTO hanhViTieuDung ( moTa, chiTiet, loaiHanhVi, ngayGhiNhan, chienDichId, sanPhamId, khachHangId)
+            VALUES ( ?, ?, ?, ?, ?, ?, ?)
+        """,  moTa, chiTiet, loaiHanhVi, ngayGhiNhan, chienDichId, sanPhamId, khachHangId)  # i + 1 để đảm bảo hanhViId bắt đầu từ 1
     
     conn.commit()
 
@@ -315,9 +325,9 @@ def insert_fake_data_tuongTac(cursor, conn, n):
         ketQua = fake.sentence()
 
         cursor.execute("""
-            INSERT INTO tuongTac (tuongTacId, khachHangId, thoiGian, chiTiet, loaiTuongTac, chienDichId, ketQua)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, i + 1, khachHangId, thoiGian, chiTiet, loaiTuongTac, chienDichId, ketQua)  # i + 1 để đảm bảo tuongTacId bắt đầu từ 1
+            INSERT INTO tuongTac ( khachHangId, thoiGian, chiTiet, loaiTuongTac, chienDichId, ketQua)
+            VALUES ( ?, ?, ?, ?, ?, ?)
+        """, khachHangId, thoiGian, chiTiet, loaiTuongTac, chienDichId, ketQua)  # i + 1 để đảm bảo tuongTacId bắt đầu từ 1
     
     conn.commit()
 
@@ -331,9 +341,20 @@ if __name__ == "__main__":
         'PWD=1234;'      # Thay your_password bằng mật khẩu của bạn
     )
     cursor = conn.cursor()
-
-
-
+    insert_fake_data_khachHang(cursor, conn, 10)
+    insert_fake_data_danhMucSanPham(cursor, conn)
+    insert_fake_data_sanPham(cursor, conn)
+    insert_fake_data_mucTieuChienDich(cursor, conn)
+    insert_fake_data_phanTichThiTruong(cursor, conn)
+    insert_fake_data_kenhPhanPhoi(cursor, conn, 10)
+    insert_fake_data_chienDichMarketing(cursor, conn, 10)
+    insert_fake_data_chienLuocMarketing(cursor, conn)
+    insert_fake_data_theoDoiGiaiDoan(cursor, conn, 10)
+    insert_fake_data_quangCao(cursor, conn, 10)
+    insert_fake_data_baoCao(cursor, conn, 10)
+    insert_fake_data_phanTichROI_KPI(cursor, conn, 10)
+    insert_fake_data_hanhViTieuDung(cursor, conn, 10)
+    insert_fake_data_tuongTac(cursor, conn, 10)
     cursor.close()
     conn.close()
 
