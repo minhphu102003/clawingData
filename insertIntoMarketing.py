@@ -184,7 +184,7 @@ def insert_fake_data_chienLuocMarketing(cursor, conn):
 
 def insert_fake_data_theoDoiGiaiDoan(cursor, conn, n):
     for i in range(n):
-        chienDichId = random.randint(1, 10)  # Giả định chienDichId đã tồn tại
+        chienDichId = random.randint(1, 20)  # Giả định chienDichId đã tồn tại
         moTa = fake.sentence()
         batDau = fake.date_time_this_year()
         ketThuc = fake.date_time_this_year(after_now=True)
@@ -201,7 +201,7 @@ def insert_fake_data_theoDoiGiaiDoan(cursor, conn, n):
 def insert_fake_data_quangCao(cursor, conn, n):
     for i in range(n):
         tenQuangCao = f"Quảng Cáo {i + 1}"  # Tên quảng cáo với số thứ tự
-        kenhPhanPhoiId = random.randint(1, 5)  # Giả định kenhPhanPhoiId đã tồn tại
+        kenhPhanPhoiId = random.randint(1, 20)  # Giả định kenhPhanPhoiId đã tồn tại
         chiPhi = round(random.uniform(1000000, 50000000), 2)
         hieuXuat = round(random.uniform(0.1, 1.0), 2)  # Giới hạn độ chính xác của float
         
@@ -229,9 +229,9 @@ def insert_fake_data_nganSachMarketing(cursor, conn, n):
         nganSachBanDau = round(random.uniform(50000000, 200000000), 2)  # Ngân sách ban đầu
         nganSachHienTai = nganSachBanDau - round(random.uniform(100000, 30000000), 2)  # Giả định một khoản chi tiêu
         chiPhiDaDung = nganSachBanDau - nganSachHienTai  # Chi phí đã dùng
-        chienDichId = random.randint(1, 10)  # Giả định chienDichId đã tồn tại
-        kenhPhanPhoiId = random.randint(1, 5)  # Giả định kenhPhanPhoiId đã tồn tại
-        quangCaoId = random.randint(1, 10)  # Giả định quangCaoId đã tồn tại
+        chienDichId = random.randint(1, 20)  # Giả định chienDichId đã tồn tại
+        kenhPhanPhoiId = random.randint(1, 100)  # Giả định kenhPhanPhoiId đã tồn tại
+        quangCaoId = random.randint(1, 30)  # Giả định quangCaoId đã tồn tại
         capNhatLanCuoi = fake.date_time_this_year()
         trangThai = random.choice(['Đang hoạt động', 'Kết thúc', 'Tạm dừng'])
 
@@ -267,7 +267,7 @@ def insert_fake_data_xuHuongThiTruong(cursor, conn, n):
         phanTich = round(random.uniform(0, 100), 2)  # Phân tích từ 0% đến 100%
         duDoan = round(random.uniform(0, 100), 2)  # Dự đoán từ 0% đến 100%
         ngayCapNhat = fake.date_time_this_year()
-        chienDichId = random.randint(1, 10)  # Giả định chienDichId đã tồn tại
+        chienDichId = random.randint(1, 20)  # Giả định chienDichId đã tồn tại
         moTa = fake.sentence()
         nguonThamKhao = fake.company()
 
@@ -303,9 +303,9 @@ def insert_fake_data_hanhViTieuDung(cursor, conn, n):
         chiTiet = fake.paragraph()
         loaiHanhVi = random.choice(loai_hanh_vi_options)
         ngayGhiNhan = fake.date_time_this_year()
-        chienDichId = random.randint(1, 10)  # Giả định chienDichId đã tồn tại
+        chienDichId = random.randint(1, 20)  # Giả định chienDichId đã tồn tại
         sanPhamId = random.randint(1, 10)  # Giả định sanPhamId đã tồn tại
-        khachHangId = random.randint(1, 10)  # Giả định khachHangId đã tồn tại
+        khachHangId = random.randint(1, 1000)  # Giả định khachHangId đã tồn tại
 
         cursor.execute("""
             INSERT INTO hanhViTieuDung ( moTa, chiTiet, loaiHanhVi, ngayGhiNhan, chienDichId, sanPhamId, khachHangId)
@@ -317,11 +317,11 @@ def insert_fake_data_hanhViTieuDung(cursor, conn, n):
 def insert_fake_data_tuongTac(cursor, conn, n):
     loai_tuong_tac_options = ['Bình luận', 'Thích', 'Chia sẻ', 'Gửi tin nhắn']  # Các loại tương tác
     for i in range(n):
-        khachHangId = random.randint(1, 10)  # Giả định khachHangId đã tồn tại
+        khachHangId = random.randint(1, 1000)  # Giả định khachHangId đã tồn tại
         thoiGian = fake.date_time_this_year()
         chiTiet = fake.sentence()
         loaiTuongTac = random.choice(loai_tuong_tac_options)
-        chienDichId = random.randint(1, 10)  # Giả định chienDichId đã tồn tại
+        chienDichId = random.randint(1, 20)  # Giả định chienDichId đã tồn tại
         ketQua = fake.sentence()
 
         cursor.execute("""
@@ -341,20 +341,22 @@ if __name__ == "__main__":
         'PWD=1234;'      # Thay your_password bằng mật khẩu của bạn
     )
     cursor = conn.cursor()
-    insert_fake_data_khachHang(cursor, conn, 10)
-    insert_fake_data_danhMucSanPham(cursor, conn)
-    insert_fake_data_sanPham(cursor, conn)
-    insert_fake_data_mucTieuChienDich(cursor, conn)
-    insert_fake_data_phanTichThiTruong(cursor, conn)
-    insert_fake_data_kenhPhanPhoi(cursor, conn, 10)
-    insert_fake_data_chienDichMarketing(cursor, conn, 10)
-    insert_fake_data_chienLuocMarketing(cursor, conn)
-    insert_fake_data_theoDoiGiaiDoan(cursor, conn, 10)
-    insert_fake_data_quangCao(cursor, conn, 10)
-    insert_fake_data_baoCao(cursor, conn, 10)
-    insert_fake_data_phanTichROI_KPI(cursor, conn, 10)
-    insert_fake_data_hanhViTieuDung(cursor, conn, 10)
-    insert_fake_data_tuongTac(cursor, conn, 10)
+    # insert_fake_data_khachHang(cursor, conn, 1000)
+    # insert_fake_data_danhMucSanPham(cursor, conn)
+    # insert_fake_data_sanPham(cursor, conn)
+    # insert_fake_data_mucTieuChienDich(cursor, conn)
+    # insert_fake_data_phanTichThiTruong(cursor, conn)
+    # insert_fake_data_kenhPhanPhoi(cursor, conn, 100)
+    # insert_fake_data_chienDichMarketing(cursor, conn, 20)
+    # insert_fake_data_chienLuocMarketing(cursor, conn)
+    # insert_fake_data_theoDoiGiaiDoan(cursor, conn, 30)
+    # insert_fake_data_quangCao(cursor, conn, 30)
+    # insert_fake_data_baoCao(cursor, conn, 40)
+    # insert_fake_data_phanTichROI_KPI(cursor, conn, 40)
+    # insert_fake_data_hanhViTieuDung(cursor, conn, 10000)
+    # insert_fake_data_tuongTac(cursor, conn, 10000)
+    insert_fake_data_nganSachMarketing(cursor, conn, 10000)
+    insert_fake_data_xuHuongThiTruong(cursor, conn, 10000)
     cursor.close()
     conn.close()
 
