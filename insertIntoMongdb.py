@@ -1,5 +1,6 @@
 import json
 from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
 
 # Hàm đọc dữ liệu từ file JSON
 def read_data(file_path):
@@ -21,38 +22,50 @@ def insert_data(data):
         
     collection = db['place']
     
+    # Từ điển ánh xạ cho các loại địa điểm
+    type_mapping = {
+        1: "Restaurant",
+        2: "Hotel",
+        3: "Tourist destination",
+        4: "Museum"
+    }
+    
     # Chuyển đổi dữ liệu và chèn vào MongoDB
     documents = []
     
     # Duyệt qua từng danh sách con bên trong data
     for sublist in data:
-        # Kiểm tra nếu sublist là danh sách
         if isinstance(sublist, list):
             for item in sublist:
                 # Xử lý và chuyển đổi dữ liệu
                 doc = {
-                    "type": item["type"],
+                    "type": type_mapping.get(int(item["type"]), "Unknown"),  # Ánh xạ type
                     "name": item["name"],
-                    "star": float(item["star"].replace(',', '.')) if item["star"] else None,  # Chuyển đổi số sao từ string sang float
-                    "longitude": float(item["longitude"]),
-                    "latitude": float(item["latitude"]),
-                    "img": item["img"],
-                    "status": True,  # Gán trạng thái mặc định là True
-                    "timeOpen": None,  # Thêm thời gian mở cửa nếu có
-                    "timeClose": None,  # Thêm thời gian đóng cửa nếu có
+                    "star": float(item["star"].replace(',', '.')) if item["star"] else None,
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [float(item["longitude"]), float(item["latitude"])]
+                    },
+                    "img": item.get("img"),
+                    "status": item.get("status", True),  # Gán trạng thái mặc định là True
+                    "timeOpen": item.get("timeOpen"),
+                    "timeClose": item.get("timeClose"),
                 }
                 documents.append(doc)
 
     # Chèn dữ liệu vào collection
-    if documents:
-        collection.insert_many(documents)
-        print("Dữ liệu đã được import thành công!")
+    for doc in documents:
+        try:
+            collection.insert_one(doc)
+        except DuplicateKeyError:
+            print(f"Bỏ qua đối tượng với img {doc['img']} do trùng lặp.")
+        except Exception as e:
+            print(f"Lỗi khi chèn dữ liệu: {e}")
+
+    print("Dữ liệu đã được import thành công!")
 
 # Chạy chương trình chính
 if __name__ == "__main__":
-    # Đọc dữ liệu từ tệp JSON
     file_path = 'places1.json'  # Đường dẫn đến file JSON
     data = read_data(file_path)
-    
-    # Chèn dữ liệu vào MongoDB
     insert_data(data)
